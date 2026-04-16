@@ -1,0 +1,119 @@
+<mat-card>
+  <mat-card-header *ngIf="curso">
+    <mat-card-title>
+        EXAMENES DEL CURSO {{curso.nombre}}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+
+    
+    <mat-tab-group dynamicHeight  [(selectedIndex)]="tabIndex">
+      <mat-tab label="ASIGNAR EXAMENES">  
+
+        <mat-form-field>
+            <input matInput placeholder="AÑADIR EXAMEN"
+            [formControl]="autoCompleteControl"
+            [matAutocomplete]="autocomplete">
+
+            <mat-autocomplete #autocomplete="matAutocomplete"
+            [displayWith]="mostrarNombre"
+            (optionSelected)="selecionarExamen($event)">
+                <mat-option *ngFor="let examen of examenesFiltrados"
+                [value]="examen">
+                        {{examen.nombre}}
+                </mat-option>
+            </mat-autocomplete>
+
+        </mat-form-field>
+
+
+
+              <table mat-table [dataSource]="examenesAsignar" class="mat-elevation-z8 mx-3"
+              style="width: 75%;">
+
+                <ng-container matColumnDef="nombre">
+                  <th mat-header-cell *matHeaderCellDef> NOMBRE </th>
+                  <td mat-cell *matCellDef="let examen"> {{examen.nombre}} </td>
+                </ng-container>
+
+                <ng-container matColumnDef="asignatura">
+                  <th mat-header-cell *matHeaderCellDef> ASIGNATURA </th>
+                  <td mat-cell *matCellDef="let examen"> {{examen.asignaturaHija.nombre}} </td>
+                </ng-container>
+
+
+                <ng-container matColumnDef="eliminar">
+                  <th mat-header-cell *matHeaderCellDef> ELIMINAR </th>
+                  <td mat-cell *matCellDef="let examen"> 
+                    <button mat-mini-fab style="background-color: #f44336; color: white;"
+                    (click)="eliminarDelAsignar(examen)"> X </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="mostrarColumnas"></tr>
+                <tr mat-row *matRowDef="let examen; columns: mostrarColumnas;" ></tr>
+              </table>
+
+              <button mat-raised-button color="primary" class="m-4"
+              (click)="asignar()"
+              [disabled]="examenesAsignar.length===0"> ASIGNAR </button>
+
+
+        </mat-tab>
+
+        <mat-tab label="EXAMENS DE CURSO">
+
+          
+
+
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 m-3"
+            style="width: 75%;">
+
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let examen"> {{examen.id}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef> NOMBRE </th>
+                <td mat-cell *matCellDef="let examen"> {{examen.nombre}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="asignaturas">
+                <th mat-header-cell *matHeaderCellDef> ASIGNATURA </th>
+                <td mat-cell *matCellDef="let examen"> 
+                  {{examen.asignaturaPadre.nombre}} -> {{examen.asignaturaHija.nombre}} 
+                </td>
+              </ng-container>
+
+
+              <ng-container matColumnDef="eliminar">
+                <th mat-header-cell *matHeaderCellDef> ELIMINAR </th>
+                <td mat-cell *matCellDef="let examen"> 
+                    <button mat-mini-fab style="background-color: #f44336; color: white;" 
+                    (click)="eliminarExamenDelCurso(examen)"> X </button>
+                </td>
+              </ng-container>
+
+
+
+
+              <tr mat-header-row *matHeaderRowDef="mostrarColumnasExamenes"></tr>
+              <tr mat-row *matRowDef="let examen; columns: mostrarColumnasExamenes;" 
+                ></tr>
+                
+            </table>
+
+            <mat-paginator 
+                  [pageSizeOptions]="pageSizeOptions"
+                  showFirstLastButtons
+                  class="float-left mx-2">
+            </mat-paginator>
+
+        </mat-tab>
+
+      </mat-tab-group>
+    </mat-card-content>
+  
+</mat-card>

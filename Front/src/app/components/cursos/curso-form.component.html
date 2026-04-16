@@ -1,0 +1,27 @@
+<div class="card text-bg-light mb-3" >
+  <div class="card-header"> {{titulo}} </div>
+  <div class="card-body">
+    
+        <button class="btn btn-secondary my-2" routerLink="/cursos"> VOLVER </button>
+
+        <form>
+          <div class="form-group">
+              <label for="nombre"> NOMBRE </label>
+              <input type="text" id="nombre" name="nombre" class="form-control" 
+              [(ngModel)]="model.nombre">
+              <div class="alert alert-danger" *ngIf="error?.nombre">
+                {{ error.nombre}}
+              </div>
+          </div>
+
+      
+          <div class="form-group">
+              <button type="button"  class="btn btn-primary" 
+              (click)="model.id? editar(): crear()">
+              {{model.id? 'EDITAR': 'CREAR'}} </button>
+          </div>
+
+        </form>
+  </div>
+</div>
+

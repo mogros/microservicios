@@ -1,0 +1,62 @@
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "http://localhost:4200"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - Content-Type
+              - Authorization
+            allow-credentials: true
+            max-age: 3600
+  
+      routes:
+        - id: microservicios-usuarios
+          uri: lb://microservicios-usuarios
+          predicates:
+            - Path=/api/alumnos/**
+          filters:
+            - StripPrefix=2
+            
+        - id: microservicios-cursos
+          uri: lb://microservicios-cursos
+          predicates:
+            - Path=/api/cursos/**
+          filters:
+            - StripPrefix=2
+            
+        - id: microservicios-examenes
+          uri: lb://microservicios-examenes
+          predicates:
+            - Path=/api/examenes/**
+          filters:
+            - StripPrefix=2
+            
+        - id: microservicios-respuestas
+          uri: lb://micorservicios-respuestas
+          predicates:
+            - Path=/api/respuestas/**
+          filters:
+            - StripPrefix=2
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+
