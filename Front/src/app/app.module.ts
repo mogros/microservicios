@@ -17,6 +17,9 @@ import { MatSelectModule } from '@angular/material/select'; // 👈 Agrega esta 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CursoFormComponent } from './components/cursos/curso-form.component';
 import { ExamenFormComponent } from './components/examenes/examen-form.component'; // 👈 También necesario para Angular Material
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatExpansionModule} from '@angular/material/expansion';
+
 
 import {MatTableModule} from '@angular/material/table';
 import {MatInputModule} from '@angular/material/input';
@@ -28,6 +31,9 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { AsignarExamenesComponent } from './components/cursos/asignar-examenes.component';
 import { CdkOverlayOrigin } from "@angular/cdk/overlay";
+import { ResponderExamenComponent } from './components/alumnos/responder-examen.component';
+import { ResponderExamenModalComponent } from './components/alumnos/responder-examen-modal.component';
+import { VerExamenModalComponent } from './components/alumnos/ver-examen-modal.component';
 
 
 //import { AsignarAlumnosComponent } from './components/alumnos/asignar-alumnos.component';
@@ -46,8 +52,12 @@ import { CdkOverlayOrigin } from "@angular/cdk/overlay";
     CursoFormComponent,
     ExamenFormComponent,
     AsignarAlumnosComponent,
-    AsignarExamenesComponent
+    AsignarExamenesComponent,
+    ResponderExamenComponent,
+    ResponderExamenModalComponent,
+    VerExamenModalComponent
   ],
+  //entryComponents:[ResponderExamenModalComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -66,7 +76,9 @@ import { CdkOverlayOrigin } from "@angular/cdk/overlay";
     MatTabsModule,
     MatAutocompleteModule,
     ReactiveFormsModule,
-    CdkOverlayOrigin
+    CdkOverlayOrigin,
+    MatDialogModule,
+    MatExpansionModule
 ],
   providers: [
 
