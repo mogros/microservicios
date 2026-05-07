@@ -1,52 +1,81 @@
-<div class="card text-bg-light mb-3" >
-  <div class="card-header"> {{titulo}} </div>
+<div class="card text-bg-light mb-3">
+  <div class="card-header">{{ titulo }}</div>
   <div class="card-body">
-    
-        <button class="btn btn-secondary my-2" routerLink="/alumnos"> VOLVER </button>
 
-        <form>
-          <div class="form-group">
-              <label for="nombre"> NOMBRE </label>
-              <input type="text" id="nombre" name="nombre" class="form-control" 
-              [(ngModel)]="model.nombre">
-              <div class="alert alert-danger" *ngIf="error?.nombre">
-                {{ error.nombre}}
-              </div>
-          </div>
+    <button class="btn btn-secondary my-2" routerLink="/alumnos">Volver</button>
 
-          <div class="form-group">
-              <label for="apellido"> APELLIDO </label>
-              <input type="text" id="apellido" name="apellido" class="form-control"
-              [(ngModel)]="model.apellido">
-              <div class="alert alert-danger" *ngIf="error?.apellido">
-                {{ error.apellido}}
-              </div>
-          </div>
+    <form #alumnoForm="ngForm" (ngSubmit)="alumnoForm.valid && (model.id ? editar() : crear())">
 
-          <div class="form-group">
-              <label for="email"> EMAIL </label>
-              <input type="text" id="email" name="email" class="form-control"
-              [(ngModel)]="model.email">
-              <div class="alert alert-danger" *ngIf="error?.email">
-                {{ error.email}}
-              </div>
-          </div>
+      <!-- Nombre -->
+      <div class="form-group mb-3">
+        <label for="nombre">Nombre *</label>
+        <input type="text" id="nombre" name="nombre" class="form-control"
+               [(ngModel)]="model.nombre"
+               required minlength="2" maxlength="60"
+               #nombreCtrl="ngModel"
+               [class.is-invalid]="nombreCtrl.invalid && nombreCtrl.touched">
+        <div class="invalid-feedback" *ngIf="nombreCtrl.errors?.['required'] && nombreCtrl.touched">
+          El nombre es obligatorio
+        </div>
+        <div class="invalid-feedback" *ngIf="nombreCtrl.errors?.['minlength'] && nombreCtrl.touched">
+          Mínimo 2 caracteres
+        </div>
+        <div class="alert alert-danger mt-1" *ngIf="error?.nombre">{{ error.nombre }}</div>
+      </div>
 
-          <div class="form-group">
-              <div class="input-group mb-3">
-                <label class="input-group-text" for="inputGroupFile01">Seleccionar foto</label>
-                <input (change)="seleccionarFoto($event)" type="file" class="form-control" id="inputGroupFile01">
-              </div>
-          </div>
+      <!-- Apellido -->
+      <div class="form-group mb-3">
+        <label for="apellido">Apellido *</label>
+        <input type="text" id="apellido" name="apellido" class="form-control"
+               [(ngModel)]="model.apellido"
+               required minlength="2" maxlength="60"
+               #apellidoCtrl="ngModel"
+               [class.is-invalid]="apellidoCtrl.invalid && apellidoCtrl.touched">
+        <div class="invalid-feedback" *ngIf="apellidoCtrl.errors?.['required'] && apellidoCtrl.touched">
+          El apellido es obligatorio
+        </div>
+        <div class="alert alert-danger mt-1" *ngIf="error?.apellido">{{ error.apellido }}</div>
+      </div>
 
+      <!-- Email -->
+      <div class="form-group mb-3">
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" class="form-control"
+               [(ngModel)]="model.email"
+               required email
+               #emailCtrl="ngModel"
+               [class.is-invalid]="emailCtrl.invalid && emailCtrl.touched">
+        <div class="invalid-feedback" *ngIf="emailCtrl.errors?.['required'] && emailCtrl.touched">
+          El email es obligatorio
+        </div>
+        <div class="invalid-feedback" *ngIf="emailCtrl.errors?.['email'] && emailCtrl.touched">
+          Introduce un email válido
+        </div>
+        <div class="alert alert-danger mt-1" *ngIf="error?.email">{{ error.email }}</div>
+      </div>
 
-          <div class="form-group">
-              <button type="button"  class="btn btn-primary" 
-              (click)="model.id? editar(): crear()">
-              {{model.id? 'EDITAR': 'CREAR'}} </button>
-          </div>
+      <!-- Foto actual (al editar) -->
+      <div class="form-group mb-3" *ngIf="model.id && model.fotoHashCode">
+        <label>Foto actual</label><br>
+        <!-- Usa el pipe para cargar la foto con JWT -->
+        <img [src]="model.id | fotoAlumno | async"
+             alt="foto actual"
+             style="max-height:120px; border-radius:8px; border:1px solid #ddd; margin-top:6px;">
+      </div>
 
-        </form>
+      <!-- Seleccionar nueva foto -->
+      <div class="form-group mb-3">
+        <label for="foto">{{ model.fotoHashCode ? 'Cambiar foto' : 'Foto (opcional)' }}</label>
+        <input type="file" id="foto" name="foto" class="form-control"
+               accept="image/*" (change)="seleccionarFoto($event)">
+        <small class="text-muted">Formatos aceptados: JPG, PNG, GIF, WEBP</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary"
+              [disabled]="alumnoForm.invalid">
+        {{ model.id ? 'Actualizar' : 'Guardar' }}
+      </button>
+
+    </form>
   </div>
 </div>
-

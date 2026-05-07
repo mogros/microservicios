@@ -1,0 +1,36 @@
+<div class="login-wrapper">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Iniciar sesión</mat-card-title>
+      <mat-card-subtitle>Plataforma de Cursos</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="error" class="alert-error">
+        {{ error }}
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario</mat-label>
+          <input matInput formControlName="username" autocomplete="username">
+          <mat-error *ngIf="username.hasError('required')">El usuario es obligatorio</mat-error>
+          <mat-error *ngIf="username.hasError('minlength')">Mínimo 3 caracteres</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password">
+          <mat-error *ngIf="password.hasError('required')">La contraseña es obligatoria</mat-error>
+          <mat-error *ngIf="password.hasError('minlength')">Mínimo 8 caracteres</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit"
+                class="full-width" [disabled]="loginForm.invalid || loading">
+          <mat-spinner *ngIf="loading" diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner>
+          <span>{{ loading ? 'Entrando...' : 'Entrar' }}</span>
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

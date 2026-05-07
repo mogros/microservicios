@@ -9,22 +9,35 @@ import { ExamenFormComponent } from './components/examenes/examen-form.component
 import { AsignarAlumnosComponent } from './components/cursos/asignar-alumnos.component';
 import { AsignarExamenesComponent } from './components/cursos/asignar-examenes.component';
 import { ResponderExamenComponent } from './components/alumnos/responder-examen.component';
+import { LoginComponent } from './components/auth/login.component';
+import { ReportesComponent } from './components/reportes/reportes.component';
+import { AuthGuard } from './guards/auth.guard';
+import { RolGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-{path:'', pathMatch:'full', redirectTo:'cursos'},
-{path:'alumnos',component:AlumnosComponent },
-{path:'alumnos/form',component:AlumnosFormComponent },
-{path:'alumnos/form/:id',component:AlumnosFormComponent },
-{path:'alumnos/responder-examen/:id',component:ResponderExamenComponent},
-{path:'cursos',component:CursosComponent },
-{path:'cursos/form',component:CursoFormComponent },
-{path:'cursos/form/:id',component:CursoFormComponent },
-{path:'cursos/asignar-alumnos/:id',component:AsignarAlumnosComponent },
-{path:'cursos/asignar-examenes/:id',component:AsignarExamenesComponent },
-{path:'examenes',component:ExamenesComponent },
-{path:'examenes/form',component:ExamenFormComponent },
-{path:'examenes/form/:id',component:ExamenFormComponent}
+  { path: 'login', component: LoginComponent },
+  { path: '', pathMatch: 'full', redirectTo: 'cursos' },
 
+  // Todos los autenticados
+  { path: 'alumnos',                      component: AlumnosComponent,        canActivate: [AuthGuard] },
+  { path: 'alumnos/form',                 component: AlumnosFormComponent,    canActivate: [AuthGuard] },
+  { path: 'alumnos/form/:id',             component: AlumnosFormComponent,    canActivate: [AuthGuard] },
+  { path: 'alumnos/responder-examen/:id', component: ResponderExamenComponent,canActivate: [AuthGuard] },
+  { path: 'cursos',                       component: CursosComponent,         canActivate: [AuthGuard] },
+  { path: 'examenes',                     component: ExamenesComponent,       canActivate: [AuthGuard] },
+
+  // Solo admin y docentes
+  { path: 'cursos/form',                 component: CursoFormComponent,       canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+  { path: 'cursos/form/:id',             component: CursoFormComponent,       canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+  { path: 'cursos/asignar-alumnos/:id',  component: AsignarAlumnosComponent,  canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+  { path: 'cursos/asignar-examenes/:id', component: AsignarExamenesComponent, canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+  { path: 'examenes/form',               component: ExamenFormComponent,      canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+  { path: 'examenes/form/:id',           component: ExamenFormComponent,      canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+
+  // Reportes — solo admin y docentes
+  { path: 'reportes', component: ReportesComponent, canActivate: [AuthGuard, RolGuard], data: { roles: ['ROLE_ADMIN','ROLE_DOCENTE'] } },
+
+  { path: '**', redirectTo: 'cursos' }
 ];
 
 @NgModule({

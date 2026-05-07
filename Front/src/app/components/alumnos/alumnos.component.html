@@ -1,73 +1,85 @@
-<div class="card text-bg-light mb-3" >
-  <div class="card-header"> {{titulo}} </div>
+<div class="card text-bg-light mb-3">
+  <div class="card-header">{{ titulo }}</div>
   <div class="card-body">
-    
-        <button class="btn btn-primary my-2" routerLink="/alumnos/form"> CREAR </button>
 
-        <div class="alert alert-info" *ngIf="lista?.length==0">
-            No hay alumnos en el sistema
-        </div>
+    <button class="btn btn-primary my-2" routerLink="/alumnos/form">CREAR</button>
 
-            <table class="table table-hover table-striped" *ngIf="lista?.length>0">
-            <thead>
-                <tr>
-                    <th> ID </th>
-                    <th> FOTO </th>
-                    <th> NOMBRE</th> 
-                    <th> APELLIDO </th>
-                    <th> EMAIL </th>
-                    <th> CREADO EN </th>
-                    <th> EXAMENES </th>
-                    <th> EDITAR  </th>
-                    <th> ELIMINAR  </th>
-                </tr>
-            </thead>
+    <div class="alert alert-info" *ngIf="lista?.length == 0">
+      No hay alumnos en el sistema
+    </div>
 
-            <tbody>
-                <tr *ngFor="let alumno of lista">
-                    <td> {{alumno.id}} </td>
-                    <!-- <td> {{alumno.nombre | uppercase}} </td> -->
-                     <td>
-                        <img *ngIf="alumno.fotoHashCode"
-                        [src]="baseEndPoint + '/uploads/img/' + alumno.id + '?fotoHashCode' + alumno.fotoHashCode" 
-                        class="img-thumbnail rounded"
-                        style="width: 64px; cursor: pointer;">
+    <table class="table table-hover table-striped" *ngIf="lista?.length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>FOTO</th>
+          <th>NOMBRE</th>
+          <th>APELLIDO</th>
+          <th>EMAIL</th>
+          <th>CREADO EN</th>
+          <th>EXAMENES</th>
+          <th>EDITAR</th>
+          <th>ELIMINAR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alumno of lista">
+          <td>{{ alumno.id }}</td>
 
-                        <div *ngIf="!alumno.fotoHashCode" 
-                            style="width: 64px; height: 64px; border-radius: 50%; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                            class="img-thumbnail">
-                            <span style="font-size: 24px; color: #999;">👤</span>
-                        </div>
+          <td>
+            <!-- Si tiene foto: cargar via pipe (usa HttpClient + JWT automáticamente) -->
+            <ng-container *ngIf="alumno.fotoHashCode; else avatarDefault">
+              <img [src]="alumno.id | fotoAlumno | async"
+                   class="img-thumbnail rounded"
+                   style="width: 64px; height: 64px; object-fit: cover; cursor: pointer;"
+                   alt="foto alumno">
+            </ng-container>
 
-                        
-                     </td>
-                    <td> {{alumno.nombre }} </td>
-                    <td> {{alumno.apellido}} </td>
-                    <td> {{alumno.email}} </td>
-                    <td> {{alumno.createAt | date:'yyyy/MM/dd'}} </td>
-                    <td> <button class="btn btn-primary btm-sm"
-                        [routerLink]="['/alumnos/responder-examen', alumno.id]"> RESPONDER </button> 
-                    </td>
-                    <td> <button class="btn btn-secondary btn-sm" 
-                        [routerLink]="['/alumnos/form', alumno.id]"> EDITAR </button> 
-                    </td>
-                    <td><button class="btn btn-danger btn-sm" 
-                        (click)="eliminar(alumno)"> Eliminr</button> 
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <!-- Si no tiene foto: avatar con icono de persona -->
+            <ng-template #avatarDefault>
+              <div style="width:64px; height:64px; border-radius:50%;
+                          background-color:#e0e0e0; display:flex;
+                          align-items:center; justify-content:center;"
+                   class="img-thumbnail">
+                <span style="font-size:28px;">👤</span>
+              </div>
+            </ng-template>
+          </td>
 
-        <mat-paginator [length]="totalRegistros"
-              [pageSize]="totalPorPagina"
-              [pageIndex]="paginaActual"
-              [pageSizeOptions]="pageSizeOptions"
-              aria-label="Select page" 
-              (page)="paginar($event)"
-              showFirstLastButtons
-              class="float-left mx-2">
-        </mat-paginator>
+          <td>{{ alumno.nombre }}</td>
+          <td>{{ alumno.apellido }}</td>
+          <td>{{ alumno.email }}</td>
+          <td>{{ alumno.createAt | date:'yyyy/MM/dd' }}</td>
+
+          <td>
+            <button class="btn btn-primary btn-sm"
+                    [routerLink]="['/alumnos/responder-examen', alumno.id]">
+              RESPONDER
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-secondary btn-sm"
+                    [routerLink]="['/alumnos/form', alumno.id]">
+              EDITAR
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-danger btn-sm" (click)="eliminar(alumno)">
+              ELIMINAR
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <mat-paginator [length]="totalRegistros"
+                   [pageSize]="totalPorPagina"
+                   [pageIndex]="paginaActual"
+                   [pageSizeOptions]="pageSizeOptions"
+                   (page)="paginar($event)"
+                   showFirstLastButtons
+                   class="float-left mx-2">
+    </mat-paginator>
 
   </div>
 </div>
-

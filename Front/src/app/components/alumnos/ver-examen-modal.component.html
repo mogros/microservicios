@@ -1,25 +1,36 @@
-<h1 mat-dialog-title> CURSO {{curso.nombre}}</h1>
+<h2 mat-dialog-title>
+  {{ curso?.nombre }} — {{ examen?.nombre }}
+</h2>
 
 <div mat-dialog-content>
-    <p>
-        exmaen {{examen.nombre}}
+
+  <!-- Encabezado del intento -->
+  <div class="intento-header">
+    <span class="intento-badge">Intento {{ numeroIntento }} de {{ totalIntentos }}</span>
+    <span *ngIf="fechaRespuesta" class="intento-fecha">
+      {{ fechaRespuesta | date:'dd/MM/yyyy HH:mm' }}
+    </span>
+  </div>
+
+  <!-- Respuestas -->
+  <mat-expansion-panel *ngFor="let respuesta of respuestas; let i = index"
+                       class="mt-2">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ i + 1 }}. {{ respuesta.pregunta?.texto }}
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <p class="respuesta-texto">
+      <strong>Respuesta:</strong>
+      {{ respuesta.texto || '(sin respuesta)' }}
     </p>
+  </mat-expansion-panel>
 
-    <mat-expansion-panel *ngFor="let respuesta of respuestas">
-         <mat-expansion-panel-header>
-            <mat-panel-title> {{respuesta.pregunta.texto}} </mat-panel-title>
-            <mat-panel-description>   </mat-panel-description>
-        </mat-expansion-panel-header>
-
-        <p>
-            {{respuesta.texto}}
-        </p>
-    </mat-expansion-panel>
-	
-
-
+  <p *ngIf="!respuestas || respuestas.length === 0" class="text-muted mt-3">
+    No hay respuestas para este intento.
+  </p>
 </div>
 
-<div mat-dialog-actions>
-    <button mat-button (click)="cerrar()"> CERRAR </button>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()">Cerrar</button>
 </div>

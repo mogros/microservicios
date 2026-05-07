@@ -1,0 +1,195 @@
+/* ── Wrapper ──────────────────────────────────────────────────── */
+.reportes-wrapper {
+  padding: 24px;
+  background: #f8f9fc;
+  min-height: calc(100vh - 64px);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.rep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.rep-header h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1f36;
+}
+.rep-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+.btn-refresh {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+.btn-refresh:hover:not(:disabled) { background: #1565c0; }
+.btn-refresh:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── KPI Cards ───────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-left: 5px solid transparent;
+  transition: transform 0.15s;
+}
+.kpi-card:hover { transform: translateY(-2px); }
+.kpi-blue  { border-left-color: #1976d2; }
+.kpi-green { border-left-color: #388e3c; }
+.kpi-orange{ border-left-color: #f57c00; }
+.kpi-purple{ border-left-color: #7b1fa2; }
+.kpi-icon  { font-size: 28px; }
+.kpi-value { font-size: 34px; font-weight: 800; color: #1a1f36; line-height: 1; }
+.kpi-label { font-size: 13px; color: #6b7280; font-weight: 500; }
+
+/* ── Tabs ─────────────────────────────────────────────────────── */
+.rep-tabs { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+
+/* ── Card interna de cada tab ────────────────────────────────── */
+.rep-card { padding: 24px; }
+.rep-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.rep-card-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1f36;
+}
+.btn-excel {
+  background: #217346;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+.btn-excel:hover:not(:disabled) { background: #1a5c38; }
+.btn-excel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Gráficos ─────────────────────────────────────────────────── */
+.chart-container { max-height: 340px; margin-bottom: 28px; }
+.chart-tall      { max-height: 420px; }
+.charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.chart-half { max-height: 320px; }
+
+/* ── Tabla ────────────────────────────────────────────────────── */
+.rep-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rep-table th {
+  background: #f1f5f9;
+  color: #374151;
+  font-weight: 700;
+  font-size: 13px;
+}
+.rep-table td { font-size: 13px; color: #374151; }
+.rep-table tr:hover td { background: #f8faff; }
+
+/* ── Progress bar ─────────────────────────────────────────────── */
+.progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+}
+.progress-bar-fill {
+  height: 10px;
+  border-radius: 5px;
+  flex-shrink: 0;
+  transition: width 0.4s ease;
+  min-width: 4px;
+}
+.progress-bar-fill.high { background: #388e3c; }
+.progress-bar-fill.mid  { background: #f57c00; }
+.progress-bar-fill.low  { background: #d32f2f; }
+.progress-label { font-size: 12px; font-weight: 700; color: #374151; white-space: nowrap; }
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-green  { background: #e8f5e9; color: #2e7d32; }
+.badge-orange { background: #fff3e0; color: #e65100; }
+.badge-red    { background: #ffebee; color: #c62828; }
+
+/* ── Summary list (asignaturas) ──────────────────────────────── */
+.summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  overflow-y: auto;
+}
+.summary-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fc;
+  border-radius: 8px;
+}
+.summary-name { font-weight: 700; color: #1a1f36; flex: 1; font-size: 13px; }
+.summary-val  { font-size: 12px; color: #1976d2; font-weight: 600; white-space: nowrap; }
+.summary-val2 { font-size: 12px; color: #6b7280; white-space: nowrap; }
+
+/* ── Empty state ──────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: #9ca3af;
+}
+.empty-state p { margin-top: 12px; font-size: 15px; }
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .kpi-grid   { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .rep-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+}

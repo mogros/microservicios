@@ -1,13 +1,13 @@
-import { ActivatedRoute } from '@angular/router';
-import { Curso } from './../../models/curso';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CursoService } from '../../services/curso.service';
-import { AlumnoService } from '../../services/alumno.service';
-import { Alumno } from '../../models/alumno';
-import { SelectionModel } from '@angular/cdk/collections';
-import Swal from 'sweetalert2';
+import { ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { SelectionModel } from '@angular/cdk/collections';
+import Swal from 'sweetalert2';
+import { Curso } from '../../models/curso';
+import { Alumno } from '../../models/alumno';
+import { CursoService } from '../../services/curso.service';
+import { AlumnoService } from '../../services/alumno.service';
 
 @Component({
   selector: 'app-asignar-alumnos',
@@ -17,139 +17,97 @@ import { MatPaginator } from '@angular/material/paginator';
 export class AsignarAlumnosComponent implements OnInit {
 
   curso: Curso;
-  alumnosAsignar: Alumno[]=[];
-  alumnos: Alumno[]=[];
-  //para mostara columnas nen la tabla
-  mostrarColumnas: string[]=['nombre','apellido','seleccion'];
-  mostrarColumnasAlumnos: string[]=['id','nombre','apellido','email', 'eliminar'];
-  //para seleccioanr muchso
-  seleccion: SelectionModel<Alumno>= new SelectionModel<Alumno>(true,[]);
-  tabIndex=0;
+  alumnosAsignar: Alumno[] = [];
+  alumnos: Alumno[] = [];
+  mostrarColumnas: string[] = ['nombre', 'apellido', 'seleccion'];
+  mostrarColumnasAlumnos: string[] = ['id', 'nombre', 'apellido', 'email', 'eliminar'];
+  seleccion = new SelectionModel<Alumno>(true, []);
 
-  //paginar de manera distinata
+  // Empieza en pestaña ALUMNOS (index 1) para mostrar los ya asignados al abrir
+  tabIndex = 1;
+
   dataSource: MatTableDataSource<Alumno>;
-  @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
-  pageSizeOptions: number[] = [3, 5, 10, 20, 50];
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  pageSizeOptions = [3, 5, 10, 20, 50];
 
-  constructor(private route: ActivatedRoute,
-              private cursoService: CursoService,
-              private alumnoService: AlumnoService){
-  }
+  constructor(
+    private route: ActivatedRoute,
+    private cursoService: CursoService,
+    private alumnoService: AlumnoService
+  ) {}
 
-  ngOnInit(){
-    this.route.paramMap.subscribe(params=>{
-        //convertir a enetro
-        const id: number=+params.get('id');
-        //usacr el curso al back
-        this.cursoService.ver(id).subscribe(c=> {
-          this.curso=c;
-          this.alumnos=this.curso.alumnos;
-          this.iniciarPaginador();
-        }) ;
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id: number = +params.get('id');
+      this.cursoService.ver(id).subscribe(c => {
+        this.curso = c;
+        this.alumnos = this.curso.alumnos ?? [];
+        this.iniciarPaginador();
+      });
     });
   }
 
-  private iniciarPaginador(): void{
-    //crear instancia de datasource
+  private iniciarPaginador(): void {
     this.dataSource = new MatTableDataSource<Alumno>(this.alumnos);
-    //pasr el paginador
     this.dataSource.paginator = this.paginator;
     this.paginator._intl.itemsPerPageLabel = 'Registros por página';
   }
 
-
-  filtrar(nombre: string): void{
-    //preguntamos si no etsa vacio y quitas espacios en blanco
-    nombre=nombre !== undefined ? nombre.trim():'';
-    if (nombre!== ''){
-      this.alumnoService.filtrarPorNombre(nombre)
-      .subscribe(alumnos=> this.alumnosAsignar=alumnos.filter(a => {
-        // filter envia bolleano
-        let filtrar =true;
-        this.alumnos.forEach(ca =>{
-          if(a.id === ca.id){
-            filtrar=false;    // para omitir  alumnos en el curso
-          }
-        });
-        return filtrar;
-      })) ;
+  filtrar(nombre: string): void {
+    nombre = nombre ? nombre.trim() : '';
+    if (nombre !== '') {
+      this.alumnoService.filtrarPorNombre(nombre).subscribe(alumnos =>
+        this.alumnosAsignar = alumnos.filter(a =>
+          !this.alumnos.some(ca => ca.id === a.id)
+        )
+      );
     }
   }
-  
-  estanTodosSeleccionados(): boolean{
-    const seleccionados = this.seleccion.selected.length;
-    const numAlumnos= this.alumnosAsignar.length;
-    return(seleccionados===numAlumnos);
+
+  estanTodosSeleccionados(): boolean {
+    return this.seleccion.selected.length === this.alumnosAsignar.length;
   }
 
-  seleccionarDesseleccionarTodos(): void{
-    this.estanTodosSeleccionados()?
-      this.seleccion.clear():
-      //por cada alumno seleccionamos
-      this.alumnosAsignar.forEach(a=> this.seleccion.select(a));
+  seleccionarDesseleccionarTodos(): void {
+    this.estanTodosSeleccionados()
+      ? this.seleccion.clear()
+      : this.alumnosAsignar.forEach(a => this.seleccion.select(a));
   }
 
-  asignar(): void{
-    //ver alumnos seleccionados
-    console.log(this.seleccion.selected);
-    this.cursoService.asignarAlumnos(this.curso, this.seleccion.selected)
-    .subscribe(c => {
-        this.tabIndex=2;
-        Swal.fire('Asignados: ', `Alumnos asigandos con exito al curso ${this.curso.nombre}`,
-          'success'
-        );
-        //concatenar a la lisa d alumnos los alumnos nuevos seleciionados
-        this.alumnos= this.alumnos.concat(this.seleccion.selected);
+  asignar(): void {
+    this.cursoService.asignarAlumnos(this.curso, this.seleccion.selected).subscribe({
+      next: () => {
+        this.tabIndex = 1;
+        this.alumnos = this.alumnos.concat(this.seleccion.selected);
         this.iniciarPaginador();
-        this.alumnosAsignar=[];
+        this.alumnosAsignar = [];
         this.seleccion.clear();
+        Swal.fire('Asignados', `Alumnos asignados al curso ${this.curso.nombre}`, 'success');
+      },
+      error: e => {
+        if (e.status === 500 && e.error?.message?.indexOf('constraint') > -1) {
+          Swal.fire('Cuidado', 'El alumno ya está asociado a otro curso.', 'error');
         }
-
-         ,
-
-       
-        e => { //manejo de error       
-        if(e.status === 500){          
-          const mensaje = e.error.message as string;
-          if(mensaje.indexOf('constraint') > -1){		//si mensaje contiene
-            Swal.fire(
-              'Cuidado:',
-              'No se puede asignar el alumno ya está asociado a otro curso.',
-              'error'
-            );
-          }
-          
-        }
-      }
-    );
-  }
-
-   eliminarAlumno(alumno: Alumno): void {
-    Swal.fire({
-      title: 'Cuidado:',
-      text: `¿Seguro que desea eliminar a ${alumno.nombre} ?`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
-      if (result.value) {
-        this.cursoService.eliminarAlumno(this.curso, alumno)
-        .subscribe(curso => {
-          //elimianr alumno q eliminamos
-          this.alumnos = this.alumnos.filter(a => a.id !== alumno.id);
-          this.iniciarPaginador();
-          //this.iniciarPaginador();
-          Swal.fire(
-            'Eliminado:',
-            `Alumno ${alumno.nombre} eliminado con éxito del curso ${curso.nombre}.`,
-            'success'
-          );
-        });    
-
       }
     });
   }
 
+  eliminarAlumno(alumno: Alumno): void {
+    Swal.fire({
+      title: 'Cuidado',
+      text: `¿Eliminar a ${alumno.nombre} del curso?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.cursoService.eliminarAlumno(this.curso, alumno).subscribe(curso => {
+          this.alumnos = this.alumnos.filter(a => a.id !== alumno.id);
+          this.iniciarPaginador();
+          Swal.fire('Eliminado', `${alumno.nombre} eliminado del curso ${curso.nombre}`, 'success');
+        });
+      }
+    });
+  }
 }

@@ -1,0 +1,25 @@
+.intento-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.intento-badge {
+  background: #1976d2;
+  color: white;
+  border-radius: 12px;
+  padding: 3px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.intento-fecha {
+  color: #666;
+  font-size: 13px;
+}
+.respuesta-texto {
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+.text-muted { color: #999; }

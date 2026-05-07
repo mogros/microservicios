@@ -1,54 +1,56 @@
 spring:
+  application:
+    name: microservicios-gateway
+
   cloud:
     gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
-      globalcors:
-        add-to-simple-url-handler-mapping: true
-        cors-configurations:
-          '[/**]':
-            allowed-origins:
-              - "http://localhost:4200"
-            allowed-methods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowed-headers:
-              - Content-Type
-              - Authorization
-            allow-credentials: true
-            max-age: 3600
-  
-      routes:
-        - id: microservicios-usuarios
-          uri: lb://microservicios-usuarios
-          predicates:
-            - Path=/api/alumnos/**
-          filters:
-            - StripPrefix=2
-            
-        - id: microservicios-cursos
-          uri: lb://microservicios-cursos
-          predicates:
-            - Path=/api/cursos/**
-          filters:
-            - StripPrefix=2
-            
-        - id: microservicios-examenes
-          uri: lb://microservicios-examenes
-          predicates:
-            - Path=/api/examenes/**
-          filters:
-            - StripPrefix=2
-            
-        - id: microservicios-respuestas
-          uri: lb://micorservicios-respuestas
-          predicates:
-            - Path=/api/respuestas/**
-          filters:
-            - StripPrefix=2
+      server:
+        webflux:
+          routes:
+            # Ruta publica: ms-auth (StripPrefix=1 → quita /api, llega /auth/login)
+            - id: microservicios-auth
+              uri: lb://microservicios-auth
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - StripPrefix=1
+
+            # Rutas protegidas (StripPrefix=2 → quita /api/<ms>, llega / al microservicio)
+            - id: microservicios-usuarios
+              uri: lb://microservicios-usuarios
+              predicates:
+                - Path=/api/alumnos/**
+              filters:
+                - StripPrefix=2
+
+            - id: microservicios-cursos
+              uri: lb://microservicios-cursos
+              predicates:
+                - Path=/api/cursos/**
+              filters:
+                - StripPrefix=2
+
+            - id: microservicios-examenes
+              uri: lb://microservicios-examenes
+              predicates:
+                - Path=/api/examenes/**
+              filters:
+                - StripPrefix=2
+
+            - id: microservicios-respuestas
+              uri: lb://micorservicios-respuestas
+              predicates:
+                - Path=/api/respuestas/**
+              filters:
+                - StripPrefix=2
+
+            # Reportes — enruta a ms-cursos (que tiene el ReporteController)
+            - id: microservicios-reportes
+              uri: lb://microservicios-cursos
+              predicates:
+                - Path=/api/reportes/**
+              filters:
+                - StripPrefix=1
 
 server:
   port: 8090
@@ -60,3 +62,13 @@ eureka:
   instance:
     instance-id: ${spring.application.name}:${random.uuid}
 
+app:
+  jwt:
+    secret: M1cr0s3rv1c10s-JWT-S3cr3t-K3y-Sup3r-S3gur4-2024!
+  security:
+    public-paths: /api/auth/,/actuator/health
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.microservicios.app.gateway: DEBUG

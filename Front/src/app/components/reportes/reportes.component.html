@@ -1,0 +1,294 @@
+<div class="reportes-wrapper">
+
+  <!-- Header -->
+  <div class="rep-header">
+    <div class="rep-header-text">
+      <h1>📊 Reportes y Estadísticas</h1>
+      <p>Panel de control académico en tiempo real</p>
+    </div>
+    <button class="btn-refresh" (click)="cargarTodo()" [disabled]="cargando">
+      <span *ngIf="!cargando">↻ Actualizar</span>
+      <span *ngIf="cargando">Cargando…</span>
+    </button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" *ngIf="resumen">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon">🎓</div>
+      <div class="kpi-value">{{ resumen.totalCursos }}</div>
+      <div class="kpi-label">Cursos activos</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon">👤</div>
+      <div class="kpi-value">{{ resumen.totalAlumnos }}</div>
+      <div class="kpi-label">Alumnos matriculados</div>
+    </div>
+    <div class="kpi-card kpi-orange">
+      <div class="kpi-icon">📝</div>
+      <div class="kpi-value">{{ resumen.totalExamenes }}</div>
+      <div class="kpi-label">Exámenes disponibles</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon">⌀</div>
+      <div class="kpi-value">{{ resumen.promedioAlumnosPorCurso }}</div>
+      <div class="kpi-label">Alumnos promedio / curso</div>
+    </div>
+  </div>
+
+  <!-- Tabs de reportes -->
+  <mat-tab-group class="rep-tabs" [(selectedIndex)]="tabActiva" animationDuration="200ms">
+
+    <!-- ── Tab 1: Alumnos por Curso ──────────────────────────── -->
+    <mat-tab label="📚 Alumnos por Curso">
+      <div class="rep-card">
+        <div class="rep-card-header">
+          <h2>Participación por curso</h2>
+          <button class="btn-excel" (click)="exportarAlumnosPorCurso()"
+                  [disabled]="alumnosPorCurso.length === 0">
+            ⬇ Exportar Excel
+          </button>
+        </div>
+
+        <!-- Gráfico de barras -->
+        <div class="chart-container">
+          <canvas baseChart
+            [data]="barChartData"
+            [type]="barChartType"
+            [options]="barChartOptions">
+          </canvas>
+        </div>
+
+        <!-- Tabla de datos -->
+        <table mat-table [dataSource]="alumnosPorCurso" class="rep-table mat-elevation-z2">
+          <ng-container matColumnDef="curso">
+            <th mat-header-cell *matHeaderCellDef>Curso</th>
+            <td mat-cell *matCellDef="let r">{{ r.curso }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalAlumnos">
+            <th mat-header-cell *matHeaderCellDef>Alumnos</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalAlumnos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalExamenes">
+            <th mat-header-cell *matHeaderCellDef>Exámenes</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalExamenes }}</td>
+          </ng-container>
+          <ng-container matColumnDef="alumnosParticiparon">
+            <th mat-header-cell *matHeaderCellDef>Participaron</th>
+            <td mat-cell *matCellDef="let r">{{ r.alumnosParticiparon }}</td>
+          </ng-container>
+          <ng-container matColumnDef="porcentaje">
+            <th mat-header-cell *matHeaderCellDef>% Participación</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill"
+                     [style.width.%]="r.porcentajeParticipacion"
+                     [class.high]="r.porcentajeParticipacion >= 60"
+                     [class.mid]="r.porcentajeParticipacion >= 30 && r.porcentajeParticipacion < 60"
+                     [class.low]="r.porcentajeParticipacion < 30">
+                </div>
+                <span class="progress-label">{{ r.porcentajeParticipacion }}%</span>
+              </div>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['curso','totalAlumnos','totalExamenes','alumnosParticiparon','porcentaje']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['curso','totalAlumnos','totalExamenes','alumnosParticiparon','porcentaje'];"></tr>
+        </table>
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 2: Participación por Examen ───────────────────── -->
+    <mat-tab label="📋 Por Examen">
+      <div class="rep-card">
+        <div class="rep-card-header">
+          <h2>Participación por examen</h2>
+          <button class="btn-excel" (click)="exportarParticipacion()"
+                  [disabled]="participacion.length === 0">
+            ⬇ Exportar Excel
+          </button>
+        </div>
+
+        <div class="chart-container chart-tall">
+          <canvas baseChart
+            [data]="hBarChartData"
+            [type]="hBarChartType"
+            [options]="hBarChartOptions">
+          </canvas>
+        </div>
+
+        <table mat-table [dataSource]="participacion" class="rep-table mat-elevation-z2">
+          <ng-container matColumnDef="examen">
+            <th mat-header-cell *matHeaderCellDef>Examen</th>
+            <td mat-cell *matCellDef="let r">{{ r.examen }}</td>
+          </ng-container>
+          <ng-container matColumnDef="curso">
+            <th mat-header-cell *matHeaderCellDef>Curso</th>
+            <td mat-cell *matCellDef="let r">{{ r.curso }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalAlumnosCurso">
+            <th mat-header-cell *matHeaderCellDef>Alumnos en curso</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalAlumnosCurso }}</td>
+          </ng-container>
+          <ng-container matColumnDef="alumnosRespondieron">
+            <th mat-header-cell *matHeaderCellDef>Respondieron</th>
+            <td mat-cell *matCellDef="let r">{{ r.alumnosRespondieron }}</td>
+          </ng-container>
+          <ng-container matColumnDef="pct">
+            <th mat-header-cell *matHeaderCellDef>% Respuesta</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="badge"
+                [class.badge-green]="r.porcentajeRespuesta >= 60"
+                [class.badge-orange]="r.porcentajeRespuesta >= 30 && r.porcentajeRespuesta < 60"
+                [class.badge-red]="r.porcentajeRespuesta < 30">
+                {{ r.porcentajeRespuesta }}%
+              </span>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['examen','curso','totalAlumnosCurso','alumnosRespondieron','pct']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['examen','curso','totalAlumnosCurso','alumnosRespondieron','pct'];"></tr>
+        </table>
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 3: Estado de Alumnos ──────────────────────────── -->
+    <mat-tab label="👥 Estado Alumnos">
+      <div class="rep-card">
+        <div class="rep-card-header">
+          <h2>Progreso y estado de alumnos</h2>
+          <button class="btn-excel" (click)="exportarActividad()"
+                  [disabled]="actividad.length === 0">
+            ⬇ Exportar Excel
+          </button>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-half">
+            <canvas baseChart
+              [data]="donaData"
+              [type]="donaType"
+              [options]="donaOptions">
+            </canvas>
+          </div>
+          <div class="chart-half">
+            <canvas baseChart
+              [data]="lineData"
+              [type]="lineType"
+              [options]="lineOptions">
+            </canvas>
+          </div>
+        </div>
+
+        <table mat-table [dataSource]="actividad" class="rep-table mat-elevation-z2">
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Alumno</th>
+            <td mat-cell *matCellDef="let r">{{ r.nombre }}</td>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let r">{{ r.email }}</td>
+          </ng-container>
+          <ng-container matColumnDef="cursos">
+            <th mat-header-cell *matHeaderCellDef>Cursos</th>
+            <td mat-cell *matCellDef="let r">{{ r.cursosMatriculado }}</td>
+          </ng-container>
+          <ng-container matColumnDef="examDisp">
+            <th mat-header-cell *matHeaderCellDef>Disponibles</th>
+            <td mat-cell *matCellDef="let r">{{ r.examenesDisponibles }}</td>
+          </ng-container>
+          <ng-container matColumnDef="examResp">
+            <th mat-header-cell *matHeaderCellDef>Respondidos</th>
+            <td mat-cell *matCellDef="let r">{{ r.examenesRespondidos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="pct">
+            <th mat-header-cell *matHeaderCellDef>% Completado</th>
+            <td mat-cell *matCellDef="let r">
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill"
+                     [style.width.%]="r.porcentajeCompletado"
+                     [class.high]="r.porcentajeCompletado >= 60"
+                     [class.low]="r.porcentajeCompletado < 60">
+                </div>
+                <span class="progress-label">{{ r.porcentajeCompletado }}%</span>
+              </div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let r">
+              <span class="badge"
+                [class.badge-green]="r.estado === 'Aprobado'"
+                [class.badge-red]="r.estado !== 'Aprobado'">
+                {{ r.estado }}
+              </span>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['nombre','email','cursos','examDisp','examResp','pct','estado']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['nombre','email','cursos','examDisp','examResp','pct','estado'];"></tr>
+        </table>
+      </div>
+    </mat-tab>
+
+    <!-- ── Tab 4: Por Asignatura ─────────────────────────────── -->
+    <mat-tab label="📖 Por Asignatura">
+      <div class="rep-card">
+        <div class="rep-card-header">
+          <h2>Distribución por asignatura</h2>
+          <button class="btn-excel" (click)="exportarAsignaturas()"
+                  [disabled]="asignaturas.length === 0">
+            ⬇ Exportar Excel
+          </button>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-half">
+            <canvas baseChart
+              [data]="pieData"
+              [type]="pieType"
+              [options]="pieOptions">
+            </canvas>
+          </div>
+          <div class="chart-half summary-list">
+            <div class="summary-item" *ngFor="let a of asignaturas">
+              <span class="summary-name">{{ a.asignatura }}</span>
+              <span class="summary-val">{{ a.totalExamenes }} exámenes</span>
+              <span class="summary-val2">{{ a.totalCursos }} cursos</span>
+            </div>
+          </div>
+        </div>
+
+        <table mat-table [dataSource]="asignaturas" class="rep-table mat-elevation-z2">
+          <ng-container matColumnDef="asignatura">
+            <th mat-header-cell *matHeaderCellDef>Asignatura</th>
+            <td mat-cell *matCellDef="let r">{{ r.asignatura }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalExamenes">
+            <th mat-header-cell *matHeaderCellDef>Exámenes</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalExamenes }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalAlumnos">
+            <th mat-header-cell *matHeaderCellDef>Alumnos (suma cursos)</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalAlumnos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="totalCursos">
+            <th mat-header-cell *matHeaderCellDef>Cursos involucrados</th>
+            <td mat-cell *matCellDef="let r">{{ r.totalCursos }}</td>
+          </ng-container>
+          <ng-container matColumnDef="cursos">
+            <th mat-header-cell *matHeaderCellDef>Detalle cursos</th>
+            <td mat-cell *matCellDef="let r">{{ r.cursosInvolucrados.join(', ') }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['asignatura','totalExamenes','totalAlumnos','totalCursos','cursos']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['asignatura','totalExamenes','totalAlumnos','totalCursos','cursos'];"></tr>
+        </table>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="!cargando && !resumen">
+    <span style="font-size:48px">📭</span>
+    <p>No hay datos disponibles aún. Crea cursos, asigna alumnos y exámenes para ver estadísticas.</p>
+  </div>
+
+</div>
